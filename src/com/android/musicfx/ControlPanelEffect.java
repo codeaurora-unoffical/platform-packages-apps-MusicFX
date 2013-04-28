@@ -922,7 +922,27 @@ public class ControlPanelEffect {
 
             // Get effect parameters
             value = prefs.getString(key, value);
-
+            if(value.equals("Normal")){
+            	value = context.getString(R.string.normal);
+            }else if(value.equals("Classical")){
+            	value = context.getString(R.string.classical);
+            }else if(value.equals("Dance")){
+            	value = context.getString(R.string.dance);
+            }else if(value.equals("Flat")){
+            	value = context.getString(R.string.flat);
+            }else if(value.equals("Folk")){
+            	value = context.getString(R.string.folk);
+            }else if(value.equals("Heavy Metal")){
+            	value = context.getString(R.string.heavymetal);
+            }else if(value.equals("Hip Hop")){
+            	value = context.getString(R.string.hiphop);
+            }else if(value.equals("Jazz")){
+            	value = context.getString(R.string.jazz);
+            }else if(value.equals("Pop")){
+            	value = context.getString(R.string.Pop);
+            }else if(value.equals("Rock")){
+            	value = context.getString(R.string.rock);
+            }
         } catch (final RuntimeException e) {
             Log.e(TAG, "getParameterString: " + key + "; " + e);
         }
