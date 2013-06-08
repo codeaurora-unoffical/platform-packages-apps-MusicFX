@@ -219,7 +219,8 @@ public class ActivityMusic extends Activity {
 
             if (effect.type.equals(AudioEffect.EFFECT_TYPE_VIRTUALIZER)) {
                 mVirtualizerSupported = true;
-                if (effect.uuid.equals(UUID.fromString("1d4033c0-8557-11df-9f2d-0002a5d5c51b"))) {
+                if (effect.uuid.equals(UUID.fromString("1d4033c0-8557-11df-9f2d-0002a5d5c51b")) ||
+                    effect.uuid.equals(UUID.fromString("e6c98a16-22a3-11e2-b87b-f23c91aec05e"))) {
                     mVirtualizerIsHeadphoneOnly = true;
                 }
             } else if (effect.type.equals(AudioEffect.EFFECT_TYPE_BASS_BOOST)) {
@@ -295,19 +296,21 @@ public class ActivityMusic extends Activity {
                     // If slider pos was 0 when starting re-enable effect
                     @Override
                     public void onStartTrackingTouch(final Knob knob) {
-                        if (knob.getProgress() == 0.0f) {
-                            ControlPanelEffect.setParameterBoolean(mContext, mCallingPackageName,
-                                    mAudioSession, ControlPanelEffect.Key.virt_enabled, true);
-                        }
+                        // Comment out to avoid glitch noise.
+                        //if (knob.getProgress() == 0.0f) {
+                        //    ControlPanelEffect.setParameterBoolean(mContext, mCallingPackageName,
+                        //            mAudioSession, ControlPanelEffect.Key.virt_enabled, true);
+                        //}
                     }
 
                     // If slider pos = 0 when stopping disable effect
                     @Override
                     public void onStopTrackingTouch(final Knob knob) {
-                        if (knob.getProgress() == 0.0f) {
-                            ControlPanelEffect.setParameterBoolean(mContext, mCallingPackageName,
-                                    mAudioSession, ControlPanelEffect.Key.virt_enabled, false);
-                        }
+                        // Comment out to avoid glitch noise.
+                        //if (knob.getProgress() == 0.0f) {
+                        //    ControlPanelEffect.setParameterBoolean(mContext, mCallingPackageName,
+                        //            mAudioSession, ControlPanelEffect.Key.virt_enabled, false);
+                        //}
                     }
 
                     @Override
@@ -344,21 +347,21 @@ public class ActivityMusic extends Activity {
                     // If slider pos was 0 when starting re-enable effect
                     @Override
                     public void onStartTrackingTouch(final Knob knob) {
-                        if (knob.getProgress() == 0.0f) {
-                            ControlPanelEffect.setParameterBoolean(mContext, mCallingPackageName,
-                                    mAudioSession, ControlPanelEffect.Key.bb_enabled, true);
-                        }
+                        // Comment out to avoid glitch noise.
+                        //if (knob.getProgress() == 0.0f) {
+                        //    ControlPanelEffect.setParameterBoolean(mContext, mCallingPackageName,
+                        //           mAudioSession, ControlPanelEffect.Key.bb_enabled, true);
+                        //}
                     }
 
                     // If slider pos = 0 when stopping disable effect
                     @Override
                     public void onStopTrackingTouch(final Knob knob) {
-                        if (knob.getProgress() == 0.0f) {
-                            // disable
-                            ControlPanelEffect.setParameterBoolean(mContext, mCallingPackageName,
-                                    mAudioSession, ControlPanelEffect.Key.bb_enabled, false);
-                        }
-
+                        // Comment out to avoid glitch noise.
+                        //if (knob.getProgress() == 0.0f) {
+                        //    ControlPanelEffect.setParameterBoolean(mContext, mCallingPackageName,
+                        //            mAudioSession, ControlPanelEffect.Key.bb_enabled, false);
+                        //}
                     }
 
                     @Override
@@ -572,7 +575,7 @@ public class ActivityMusic extends Activity {
         final Knob bBKnob = (Knob) findViewById(R.id.bBStrengthKnob);
         bBKnob.setEnabled(enabled);
         final Knob vIKnob = (Knob) findViewById(R.id.vIStrengthKnob);
-        vIKnob.setEnabled(enabled);
+        vIKnob.setEnabled(enabled || !mVirtualizerIsHeadphoneOnly);
 
         if (!force) {
             boolean on = ControlPanelEffect.getParameterBoolean(mContext, mCallingPackageName,
@@ -580,7 +583,7 @@ public class ActivityMusic extends Activity {
             bBKnob.setOn(enabled && on);
             on = ControlPanelEffect.getParameterBoolean(mContext, mCallingPackageName,
                     mAudioSession, ControlPanelEffect.Key.virt_enabled);
-            vIKnob.setOn(enabled && on);
+            vIKnob.setOn((enabled && on) || !mVirtualizerIsHeadphoneOnly);
         }
     }
 
