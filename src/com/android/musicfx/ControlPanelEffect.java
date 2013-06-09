@@ -116,6 +116,8 @@ public class ControlPanelEffect {
     private final static int BASS_BOOST_STRENGTH_DEFAULT = 667;
     private final static boolean PRESET_REVERB_ENABLED_DEFAULT = false;
     private final static int PRESET_REVERB_CURRENT_PRESET_DEFAULT = 0; // None
+    private static int mPrevBassBoostStrength = 0;
+    private static int mPrevVirtStrength = 0;
 
     // EQ defaults
     private final static boolean EQUALIZER_ENABLED_DEFAULT = true;
@@ -368,8 +370,7 @@ public class ControlPanelEffect {
                     if (controlMode == ControlMode.CONTROL_EFFECTS) {
                         final Virtualizer virtualizerEffect = getVirtualizerEffect(audioSession);
                         if (virtualizerEffect != null) {
-                            virtualizerEffect.setEnabled(prefs.getBoolean(
-                                    Key.virt_enabled.toString(), VIRTUALIZER_ENABLED_DEFAULT));
+                            virtualizerEffect.setEnabled(true);
                             final int vIStrength = prefs.getInt(Key.virt_strength.toString(),
                                     VIRTUALIZER_STRENGTH_DEFAULT);
                             setParameterInt(context, packageName,
@@ -377,8 +378,7 @@ public class ControlPanelEffect {
                         }
                         final BassBoost bassBoostEffect = getBassBoostEffect(audioSession);
                         if (bassBoostEffect != null) {
-                            bassBoostEffect.setEnabled(prefs.getBoolean(Key.bb_enabled.toString(),
-                                    BASS_BOOST_ENABLED_DEFAULT));
+                            bassBoostEffect.setEnabled(true);
                             final int bBStrength = prefs.getInt(Key.bb_strength.toString(),
                                     BASS_BOOST_STRENGTH_DEFAULT);
                             setParameterInt(context, packageName,
@@ -459,8 +459,14 @@ public class ControlPanelEffect {
                     case virt_enabled:
                         final Virtualizer virtualizerEffect = getVirtualizerEffect(audioSession);
                         if (virtualizerEffect != null) {
-                            virtualizerEffect.setEnabled(value);
-                            enabled = virtualizerEffect.getEnabled();
+                            if(value) {
+                                virtualizerEffect.setStrength((short) mPrevVirtStrength);
+                                enabled = true;
+                            } else {
+                                mPrevVirtStrength = virtualizerEffect.getRoundedStrength();
+                                virtualizerEffect.setStrength((short) 0);
+                                enabled = false;
+                            }
                         }
                         break;
 
@@ -468,8 +474,14 @@ public class ControlPanelEffect {
                     case bb_enabled:
                         final BassBoost bassBoostEffect = getBassBoostEffect(audioSession);
                         if (bassBoostEffect != null) {
-                            bassBoostEffect.setEnabled(value);
-                            enabled = bassBoostEffect.getEnabled();
+                            if(value) {
+                                bassBoostEffect.setStrength((short) mPrevBassBoostStrength);
+                                enabled = true;
+                            } else {
+                                mPrevBassBoostStrength = bassBoostEffect.getRoundedStrength();
+                                bassBoostEffect.setStrength((short) 0);
+                                enabled = false;
+                            }
                         }
                         break;
 
