@@ -179,6 +179,11 @@ public class Visualizer extends LinearLayout {
         invalidate();
     }
 
+    @Override
+    public boolean isEnabled() {
+        return mEnabled;
+    }
+
     public void setText(final String text) {
         mTV.setText(text);
     }

@@ -606,7 +606,9 @@ public class ActivityMusic extends Activity {
         final OnSeekBarChangeListener listener = new OnSeekBarChangeListener() {
             @Override
             public void onShow(final Visualizer v) {
-                showSeekBar(true);
+                if(v.isEnabled()) {
+                    showSeekBar(true);
+                }
             }
 
             @Override
