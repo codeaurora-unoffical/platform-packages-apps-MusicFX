@@ -255,7 +255,7 @@ public class ControlPanelEffect {
                         EQUALIZER_PRESET_USER_BAND_LEVEL_DEFAULT, mEQNumBands);
                 // If no preset prefs set use CI EXTREME (= numPresets)
                 final short eQPreset = (short) prefs.getInt(Key.eq_current_preset.toString(),
-                        mEQNumPresets);
+                        mEQNumPresets+1);
                 editor.putInt(Key.eq_current_preset.toString(), eQPreset);
                 final short[] bandLevel = new short[mEQNumBands];
                 for (short band = 0; band < mEQNumBands; band++) {
