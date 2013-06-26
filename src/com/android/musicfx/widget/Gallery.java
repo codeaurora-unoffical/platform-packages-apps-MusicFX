@@ -67,7 +67,8 @@ public class Gallery extends android.widget.Gallery {
                 if (tv != null) {
                     tv.setTextColor(mEnabled ? mHighlightColor : mDisabledColor);
                 }
-                if (mLastView != null) {
+
+                if ((mLastView != null) && (mLastView != tv)) {
                     mLastView.setTextColor(mEnabled ? mLowlightColor : mDisabledColor);
                 }
                 mLastView = tv;
