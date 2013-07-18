@@ -501,9 +501,25 @@ public class ActivityMusic extends Activity implements OnSeekBarChangeListener {
         spinner.setSelection(mPRPreset);
     }
 
+    private String[] translate(String[] values, String[] entries, String[] source) {
+        String[] s = java.util.Arrays.copyOf(source, source.length);
+        for (int i = 0, len = source.length; i < len; i++) {
+            for (int j = 0, jLen = values.length; j < jLen; j++) {
+                if (android.text.TextUtils.isEmpty(entries[j])) continue; // Compatible until allow empty
+                if (!source[i].equals(values[j])) continue;
+                // found and break
+                s[i] = entries[j];
+                break;
+            }
+        }
+        return s;
+    }
+
     private void equalizerSpinnerInit(Spinner spinner) {
+        String[] translated = translate(getResources().getStringArray(R.array.preset_values),
+                getResources().getStringArray(R.array.preset_entries), mEQPresetNames);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_spinner_item, mEQPresetNames);
+                android.R.layout.simple_spinner_item, translated);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
