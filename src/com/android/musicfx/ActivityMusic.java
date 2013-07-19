@@ -60,6 +60,9 @@ import android.widget.Toast;
 import java.util.Formatter;
 import java.util.Locale;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  *
  */
@@ -502,17 +505,25 @@ public class ActivityMusic extends Activity implements OnSeekBarChangeListener {
     }
 
     private String[] translate(String[] values, String[] entries, String[] source) {
-        String[] s = java.util.Arrays.copyOf(source, source.length);
-        for (int i = 0, len = source.length; i < len; i++) {
-            for (int j = 0, jLen = values.length; j < jLen; j++) {
-                if (android.text.TextUtils.isEmpty(entries[j])) continue; // Compatible until allow empty
-                if (!source[i].equals(values[j])) continue;
-                // found and break
-                s[i] = entries[j];
-                break;
-            }
+        return translate(getMap(values, entries), source);
+    }
+
+    private Map<String, String> getMap(String[] keys, String[] values) {
+        Map<String, String> map = new HashMap<String, String>();
+        for (int i = 0, len = keys.length; i < len; i++) {
+            map.put(keys[i], values[i]);
         }
-        return s;
+        return map;
+    }
+
+    private String[] translate(Map<String, String> map, String[] source) {
+        String[] translation = java.util.Arrays.copyOf(source, source.length);
+        for (int i = 0, len = source.length; i < len; i++) {
+            String s = map.get(source[i]);
+            if (android.text.TextUtils.isEmpty(s)) continue;
+            translation[i] = s;
+        }
+        return translation;
     }
 
     private void equalizerSpinnerInit(Spinner spinner) {
