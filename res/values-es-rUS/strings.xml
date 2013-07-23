@@ -27,7 +27,7 @@
     <string name="pr_summary" msgid="7457279522425453515">"Otros efectos de reverberación de sala"</string>
     <string name="pr_dialog_title" msgid="8080282254796293452">"Ajustes predeterminados de reverberación"</string>
     <string name="setup" msgid="1103677904576339192">"Configuración"</string>
-    <string name="ci_extreme" msgid="1736938429763948084">"FX booster"</string>
+    <string name="ci_extreme" msgid="1736938429763948084">"Amplificador FX"</string>
     <string name="user" msgid="3949460956502898057">"Usuario"</string>
     <string name="picker_title" msgid="8464126693702817261">"Panel control efectos música"</string>
 </resources>
