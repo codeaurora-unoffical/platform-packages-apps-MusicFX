@@ -102,6 +102,7 @@ public class ActivityMusic extends Activity {
     private int mNumberEqualizerBands;
     private int mEqualizerMinBandLevel;
     private int mEQPresetUserPos = 1;
+    private int mEQPresetCIExtremePos = 1;
     private int mEQPreset;
     private int[] mEQPresetUserBandLevelsPrev;
     private String[] mEQPresetNames;
@@ -248,6 +249,7 @@ public class ActivityMusic extends Activity {
         }
         mEQPresetNames[numPresets] = getString(R.string.ci_extreme);
         mEQPresetNames[numPresets + 1] = getString(R.string.user);
+        mEQPresetCIExtremePos = numPresets;
         mEQPresetUserPos = numPresets + 1;
 
         // Watch for button clicks and initialization.
@@ -624,7 +626,9 @@ public class ActivityMusic extends Activity {
         tv.setText("0 dB");
         tv = (TextView) findViewById(R.id.minLevelText);
         tv.setText("-15 dB");
-        equalizerUpdateDisplay();
+
+        // If no preset prefs set use CI EXTREME (= numPresets)
+        equalizerSetPreset(mEQPresetCIExtremePos);
     }
 
     private String format(String format, Object... args) {
