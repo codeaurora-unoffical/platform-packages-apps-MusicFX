@@ -95,6 +95,7 @@ public class ActivityMusic extends Activity implements OnSeekBarChangeListener {
     private int mNumberEqualizerBands;
     private int mEqualizerMinBandLevel;
     private int mEQPresetUserPos = 1;
+    private int mEQPresetCIExtremePos = 1;
     private int mEQPreset;
     private int mEQPresetPrevious;
     private int[] mEQPresetUserBandLevelsPrev;
@@ -276,6 +277,7 @@ public class ActivityMusic extends Activity implements OnSeekBarChangeListener {
         }
         mEQPresetNames[numPresets] = getString(R.string.ci_extreme);
         mEQPresetNames[numPresets + 1] = getString(R.string.user);
+        mEQPresetCIExtremePos = numPresets;
         mEQPresetUserPos = numPresets + 1;
 
         // Watch for button clicks and initialization.
@@ -668,7 +670,9 @@ public class ActivityMusic extends Activity implements OnSeekBarChangeListener {
         tv.setText("0 dB");
         tv = (TextView) findViewById(R.id.minLevelText);
         tv.setText("-15 dB");
-        equalizerUpdateDisplay();
+
+        // If no preset prefs set use CI EXTREME (= numPresets)
+        equalizerSetPreset(mEQPresetCIExtremePos);
     }
 
     private String format(String format, Object... args) {
