@@ -102,7 +102,6 @@ public class ActivityMusic extends Activity {
     private int mNumberEqualizerBands;
     private int mEqualizerMinBandLevel;
     private int mEQPresetUserPos = 1;
-    private int mEQPresetCIExtremePos = 1;
     private int mEQPreset;
     private int[] mEQPresetUserBandLevelsPrev;
     private String[] mEQPresetNames;
@@ -249,7 +248,6 @@ public class ActivityMusic extends Activity {
         }
         mEQPresetNames[numPresets] = getString(R.string.ci_extreme);
         mEQPresetNames[numPresets + 1] = getString(R.string.user);
-        mEQPresetCIExtremePos = numPresets;
         mEQPresetUserPos = numPresets + 1;
 
         // Watch for button clicks and initialization.
@@ -275,7 +273,7 @@ public class ActivityMusic extends Activity {
                     // effect contents depending on checked state
                     setEnabledAllChildren(viewGroup, isChecked);
                     // update UI according to headset state
-                    updateUIHeadset(true);
+                    updateUIHeadset(false);
                 }
             });
 
@@ -479,13 +477,28 @@ public class ActivityMusic extends Activity {
      */
     private void setEnabledAllChildren(final ViewGroup viewGroup, final boolean enabled) {
         final int count = viewGroup.getChildCount();
+        final View bb = findViewById(R.id.bBStrengthKnob);
+        final View virt = findViewById(R.id.vIStrengthKnob);
+        boolean on = true;
+
         for (int i = 0; i < count; i++) {
             final View view = viewGroup.getChildAt(i);
             if ((view instanceof LinearLayout) || (view instanceof RelativeLayout)) {
                 final ViewGroup vg = (ViewGroup) view;
                 setEnabledAllChildren(vg, enabled);
             }
-            view.setEnabled(enabled);
+
+            if(enabled && (view == virt)) {
+                on = ControlPanelEffect.getParameterBoolean(mContext, mCallingPackageName,
+                        mAudioSession, ControlPanelEffect.Key.virt_enabled);
+                view.setEnabled(on);
+            } else if(enabled && (view == bb)) {
+                on = ControlPanelEffect.getParameterBoolean(mContext, mCallingPackageName,
+                        mAudioSession, ControlPanelEffect.Key.bb_enabled);
+                view.setEnabled(on);
+            } else {
+                view.setEnabled(enabled);
+            }
         }
     }
 
@@ -626,9 +639,7 @@ public class ActivityMusic extends Activity {
         tv.setText("0 dB");
         tv = (TextView) findViewById(R.id.minLevelText);
         tv.setText("-15 dB");
-
-        // If no preset prefs set use CI EXTREME (= numPresets)
-        equalizerSetPreset(mEQPresetCIExtremePos);
+        equalizerUpdateDisplay();
     }
 
     private String format(String format, Object... args) {
