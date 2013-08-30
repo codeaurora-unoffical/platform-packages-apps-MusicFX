@@ -20,7 +20,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background_land">
+    android:background="#2e2e2f">
 
     <TextView
         android:id="@+id/noEffectsTextView"
@@ -37,39 +37,28 @@
 
     <LinearLayout
         android:id="@+id/contentSoundEffects"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="48dip"
-        android:orientation="horizontal"
-        android:gravity="center">
+        android:layout_marginTop="48dip">
+
+        <include layout="@layout/music_eq"
+            android:layout_width="match_parent"
+            android:layout_height="0dip"
+            android:layout_weight="26" />
+
+        <com.android.musicfx.widget.Gallery
+            android:id="@+id/eqPresets"
+            android:layout_width="match_parent"
+            android:layout_height="0dip"
+            android:layout_weight="11"
+            android:gravity="center_vertical"
+            android:background="@drawable/preset_bar" />
 
         <LinearLayout
-            android:layout_width="0dip"
-            android:layout_height="match_parent"
-            android:layout_weight="3"
-            android:gravity="top"
-            android:layout_gravity="center"
-            android:orientation="vertical">
-
-            <include layout="@layout/music_eq"
-                android:layout_width="match_parent"
-                android:layout_height="0dip"
-                android:layout_weight="6" />
-
-            <com.android.musicfx.widget.Gallery
-                android:id="@+id/eqPresets"
-                android:layout_width="match_parent"
-                android:layout_height="0dip"
-                android:layout_weight="3"
-                android:gravity="center_vertical"
-                android:background="@drawable/preset_bar" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dip"
-            android:layout_height="match_parent"
-            android:layout_weight="2"
+            android:layout_width="match_parent"
+            android:layout_height="0dip"
+            android:layout_weight="23"
             android:gravity="center"
             android:orientation="horizontal">
 
@@ -78,24 +67,25 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 custom:label="@string/bass_boost_strength"
-                custom:background="@drawable/knob_bg_small"
-                custom:foreground="@drawable/knob_small" />
+                custom:foreground="@drawable/knob_large" />
 
             <com.android.musicfx.widget.Knob
                 android:id="@+id/vIStrengthKnob"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="6dip"
+                android:layout_marginStart="10dip"
                 custom:label="@string/virtualizer_strength"
-                custom:background="@drawable/knob_bg_small"
-                custom:foreground="@drawable/knob_small" />
+                custom:foreground="@drawable/knob_large" />
         </LinearLayout>
 
         <Spinner android:id="@+id/prSpinner"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
             android:minHeight="?android:attr/listPreferredItemHeight"
             android:drawSelectorOnTop="true"
-            android:visibility="gone" />
+            android:visibility="gone"
+        />
+
     </LinearLayout>
 </LinearLayout>
