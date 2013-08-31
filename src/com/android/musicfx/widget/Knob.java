@@ -48,7 +48,12 @@ import java.lang.Math;
 import com.android.musicfx.R;
 
 public class Knob extends FrameLayout {
-    private final int STROKE_WIDTH = 6;
+    private static final int STROKE_WIDTH = 6;
+    private static final float TEXT_SIZE = 0.20f;
+    private static final float TEXT_PADDING = 0.31f;
+    private static final float LABEL_PADDING = 0.05f;
+    private static final float LABEL_SIZE = 0.09f;
+    private static final float INDICATOR_RADIUS = 0.38f;
 
     public interface OnKnobChangeListener {
         void onValueChanged(Knob knob, int value, boolean fromUser);
@@ -89,10 +94,9 @@ public class Knob extends FrameLayout {
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.Knob, 0, 0);
 
         String label;
-        int background, foreground;
+        int foreground;
         try {
             label = a.getString(R.styleable.Knob_label);
-            background = a.getResourceId(R.styleable.Knob_background, R.drawable.knob_bg);
             foreground = a.getResourceId(R.styleable.Knob_foreground, R.drawable.knob);
         } finally {
             a.recycle();
@@ -105,9 +109,8 @@ public class Knob extends FrameLayout {
         Resources res = getResources();
         mHighlightColor = res.getColor(R.color.highlight);
         mLowlightColor = res.getColor(R.color.lowlight);
-        mDisabledColor = res.getColor(R.color.disabled);
+        mDisabledColor = res.getColor(R.color.disabled_knob);
 
-        setBackgroundResource(background);
         ((ImageView) findViewById(R.id.knob_foreground)).setImageResource(foreground);
 
         mLabelTV = (TextView) findViewById(R.id.knob_label);
@@ -156,7 +159,11 @@ public class Knob extends FrameLayout {
             progress = 0.0f;
         }
         mProgress = progress;
-        mProgressTV.setText((int)(mProgress * 100) + "%");
+        if (mOn && mEnabled) {
+            mProgressTV.setText((int)(mProgress * 100) + "%");
+        } else {
+            mProgressTV.setText("--%");
+        }
 
         invalidate();
 
@@ -174,7 +181,7 @@ public class Knob extends FrameLayout {
     }
 
     private void drawIndicator() {
-        float r = mWidth / 2 - 25;
+        float r = mWidth * INDICATOR_RADIUS;
         ImageView view = mOn ? mKnobOn : mKnobOff;
         view.setTranslationX((float) Math.sin(mProgress * 2 * Math.PI) * r - mIndicatorWidth / 2);
         view.setTranslationY((float) -Math.cos(mProgress * 2 * Math.PI) * r - mIndicatorWidth / 2);
@@ -193,6 +200,11 @@ public class Knob extends FrameLayout {
         on = on && mEnabled;
         mLabelTV.setTextColor(on ? mHighlightColor : mDisabledColor);
         mProgressTV.setTextColor(on ? mHighlightColor : mDisabledColor);
+        if (on) {
+            mProgressTV.setText((int)(mProgress * 100) + "%");
+        } else {
+            mProgressTV.setText("--%");
+        }
         mPaint.setColor(on ? mHighlightColor : mDisabledColor);
         mKnobOn.setVisibility(on ? View.VISIBLE : View.GONE);
         mKnobOff.setVisibility(on ? View.GONE : View.VISIBLE);
@@ -203,7 +215,9 @@ public class Knob extends FrameLayout {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         drawIndicator();
-        canvas.drawArc(mRectF, -90, mProgress * 360, false, mPaint);
+        if (mOn && mEnabled) {
+            canvas.drawArc(mRectF, -90, mProgress * 360, false, mPaint);
+        }
     }
 
     @Override
@@ -214,10 +228,11 @@ public class Knob extends FrameLayout {
         mRectF = new RectF(STROKE_WIDTH, STROKE_WIDTH,
                 mWidth - STROKE_WIDTH, mWidth - STROKE_WIDTH);
 
-        mProgressTV.setTextSize(TypedValue.COMPLEX_UNIT_PX, w * 0.16f);
-        mProgressTV.setPadding(0, (int) (w * 0.33), 0, 0);
+        mProgressTV.setTextSize(TypedValue.COMPLEX_UNIT_PX, w * TEXT_SIZE);
+        mProgressTV.setPadding(0, (int) (w * TEXT_PADDING), 0, 0);
         mProgressTV.setVisibility(View.VISIBLE);
-        mLabelTV.setTextSize(TypedValue.COMPLEX_UNIT_PX, w * 0.12f);
+        mLabelTV.setTextSize(TypedValue.COMPLEX_UNIT_PX, w * LABEL_SIZE);
+        mLabelTV.setPadding(0, (int) (w * LABEL_PADDING), 0, 0);
         mLabelTV.setVisibility(View.VISIBLE);
     }
 
