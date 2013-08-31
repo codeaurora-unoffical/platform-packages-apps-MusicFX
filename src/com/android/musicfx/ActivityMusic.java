@@ -63,6 +63,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
+import android.util.DisplayMetrics;
 
 import java.util.Formatter;
 import java.util.Locale;
@@ -612,8 +613,11 @@ public class ActivityMusic extends Activity {
             }
         };
 
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        final int pixels = (int) (metrics.widthPixels / (mNumberEqualizerBands + 1.5f));
         final LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
+                pixels, ViewGroup.LayoutParams.MATCH_PARENT);
         for (int band = 0; band < mNumberEqualizerBands; band++) {
             // Unit conversion from mHz to Hz and use k prefix if necessary to display
             final int centerFreq = centerFreqs[band] / 1000;

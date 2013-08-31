@@ -55,8 +55,7 @@ public class Visualizer extends LinearLayout {
 
     private final int MAX_TILES = 17;
     private final float SPACE_RATIO = 2.618f;
-    private final float BORDER_RADIUS = 3.0f;
-    private final float HORIZONTAL_PADDING = 0.2f;
+    private final float HORIZONTAL_PADDING = 0.138f;
     private final int VERTICAL_PADDING = 20;
 
     private final TextView mTV;
@@ -166,7 +165,7 @@ public class Visualizer extends LinearLayout {
                     i * (SPACE_RATIO + 1) * mBaseHeight + VERTICAL_PADDING,
                     mWidth * (1 - HORIZONTAL_PADDING),
                     ((i + 1) * SPACE_RATIO + i) * mBaseHeight + VERTICAL_PADDING);
-            canvas.drawRoundRect(rf, BORDER_RADIUS, BORDER_RADIUS, mPaint);
+            canvas.drawRect(rf, mPaint);
         }
     }
 
