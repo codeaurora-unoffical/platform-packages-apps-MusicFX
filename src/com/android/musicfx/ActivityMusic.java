@@ -244,8 +244,9 @@ public class ActivityMusic extends Activity {
                 mAudioSession, ControlPanelEffect.Key.eq_num_presets);
         mEQPresetNames = new String[numPresets + 2];
         for (short i = 0; i < numPresets; i++) {
-            mEQPresetNames[i] = ControlPanelEffect.getParameterString(mContext,
+            final String eqPresetName = ControlPanelEffect.getParameterString(mContext,
                     mCallingPackageName, mAudioSession, ControlPanelEffect.Key.eq_preset_name, i);
+            mEQPresetNames[i] = localizePresetName(eqPresetName);
         }
         mEQPresetNames[numPresets] = getString(R.string.ci_extreme);
         mEQPresetNames[numPresets + 1] = getString(R.string.user);
@@ -375,6 +376,24 @@ public class ActivityMusic extends Activity {
         ab.setCustomView(mToggleSwitch, params);
         ab.setDisplayOptions(ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_SHOW_CUSTOM
                 | ActionBar.DISPLAY_HOME_AS_UP);
+    }
+
+    private final String localizePresetName(final String name) {
+        final String[] names = {
+            "Normal", "Classical", "Dance", "Flat", "Folk",
+            "Heavy Metal", "Hip Hop", "Jazz", "Pop", "Rock"
+        };
+        final int[] ids = {
+            R.string.normal, R.string.classical, R.string.dance, R.string.flat, R.string.folk,
+            R.string.heavy_metal, R.string.hip_hop, R.string.jazz, R.string.pop, R.string.rock
+        };
+
+        for (int i = names.length - 1; i >= 0; --i) {
+            if (names[i].equals(name)) {
+                return getString(ids[i]);
+            }
+        }
+        return name;
     }
 
     @Override
