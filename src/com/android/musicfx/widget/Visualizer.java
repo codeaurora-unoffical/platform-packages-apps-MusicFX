@@ -47,7 +47,6 @@ import com.android.musicfx.seekbar.SeekBar;
 
 public class Visualizer extends LinearLayout {
     public interface OnSeekBarChangeListener {
-        public void onShow(Visualizer visualizer);
         public void onProgressChanged(Visualizer visualizer, int progress, boolean fromUser);
         public void onStartTrackingTouch(Visualizer visualizer);
         public void onStopTrackingTouch(Visualizer visualizer);
@@ -200,30 +199,6 @@ public class Visualizer extends LinearLayout {
         mProgress = progress;
         mSB.setProgress(progress);
         invalidate();
-    }
-
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
-        return !mShowSeekBar;
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                setShowSeekBar(true);
-                if (mOnSeekBarChangeListener != null) {
-                    mOnSeekBarChangeListener.onShow(this);
-                }
-                return false;
-            case MotionEvent.ACTION_MOVE:
-                break;
-            case MotionEvent.ACTION_UP:
-                break;
-            default:
-                break;
-        }
-        return true;
     }
 
     public void setShowSeekBar(boolean show) {
