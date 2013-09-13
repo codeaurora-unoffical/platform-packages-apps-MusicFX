@@ -24,7 +24,6 @@ import com.android.musicfx.widget.Knob.OnKnobChangeListener;
 import com.android.musicfx.widget.Visualizer;
 import com.android.musicfx.widget.Visualizer.OnSeekBarChangeListener;
 
-
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -244,8 +243,9 @@ public class ActivityMusic extends Activity {
                 mAudioSession, ControlPanelEffect.Key.eq_num_presets);
         mEQPresetNames = new String[numPresets + 2];
         for (short i = 0; i < numPresets; i++) {
-            mEQPresetNames[i] = ControlPanelEffect.getParameterString(mContext,
+            final String eqPresetName = ControlPanelEffect.getParameterString(mContext,
                     mCallingPackageName, mAudioSession, ControlPanelEffect.Key.eq_preset_name, i);
+            mEQPresetNames[i] = localizePresetName(eqPresetName);
         }
         mEQPresetNames[numPresets] = getString(R.string.ci_extreme);
         mEQPresetNames[numPresets + 1] = getString(R.string.user);
@@ -377,6 +377,24 @@ public class ActivityMusic extends Activity {
                 | ActionBar.DISPLAY_HOME_AS_UP);
     }
 
+    private final String localizePresetName(final String name) {
+        final String[] names = {
+            "Normal", "Classical", "Dance", "Flat", "Folk",
+            "Heavy Metal", "Hip Hop", "Jazz", "Pop", "Rock"
+        };
+        final int[] ids = {
+            R.string.normal, R.string.classical, R.string.dance, R.string.flat, R.string.folk,
+            R.string.heavy_metal, R.string.hip_hop, R.string.jazz, R.string.pop, R.string.rock
+        };
+
+        for (int i = names.length - 1; i >= 0; --i) {
+            if (names[i].equals(name)) {
+                return getString(ids[i]);
+            }
+        }
+        return name;
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -459,9 +477,7 @@ public class ActivityMusic extends Activity {
             @Override
             public void onItemSelected(int position) {
                 mEQPreset = position;
-                if (position != mEQPresetUserPos) {
-                    showSeekBar(false);
-                }
+                showSeekBar(position == mEQPresetUserPos);
                 equalizerSetPreset(position);
             }
         });
@@ -582,13 +598,6 @@ public class ActivityMusic extends Activity {
         final int mEqualizerMaxBandLevel = bandLevelRange[1];
         final OnSeekBarChangeListener listener = new OnSeekBarChangeListener() {
             @Override
-            public void onShow(final Visualizer v) {
-                if (v.isEnabled()) {
-                    showSeekBar(true);
-                }
-            }
-
-            @Override
             public void onProgressChanged(final Visualizer v, final int progress,
                     final boolean fromUser) {
                 for (short band = 0; band < mNumberEqualizerBands; ++band) {
@@ -604,12 +613,30 @@ public class ActivityMusic extends Activity {
 
             @Override
             public void onStartTrackingTouch(final Visualizer v) {
-                onStartTrackingSeekBarTouch();
             }
 
             @Override
             public void onStopTrackingTouch(final Visualizer v) {
                 equalizerUpdateDisplay();
+            }
+        };
+        final OnTouchListener tl = new OnTouchListener() {
+            @Override
+            public boolean onTouch(final View v, final MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        if (mEQPreset != mEQPresetUserPos) {
+                            final Toast toast = Toast.makeText(mContext,
+                                    getString(R.string.eq_custom), Toast.LENGTH_SHORT);
+                            toast.setGravity(Gravity.TOP | Gravity.CENTER, 0,
+                                    toast.getYOffset() * 2);
+                            toast.show();
+                            return true;
+                        }
+                        return false;
+                    default:
+                        return false;
+                }
             }
         };
 
@@ -632,6 +659,7 @@ public class ActivityMusic extends Activity {
             v.setText(format("%.0f", centerFreqHz) + unitPrefix);
             v.setMax(mEqualizerMaxBandLevel - mEqualizerMinBandLevel);
             v.setOnSeekBarChangeListener(listener);
+            v.setOnTouchListener(tl);
             eqcontainer.addView(v, lp);
             mEqualizerVisualizer[band] = v;
         }
@@ -656,21 +684,6 @@ public class ActivityMusic extends Activity {
         for (int i = 0; i < mNumberEqualizerBands; ++i) {
             mEqualizerVisualizer[i].setShowSeekBar(show);
         }
-        if (show) {
-            onStartTrackingSeekBarTouch();
-        }
-    }
-
-    public void onStartTrackingSeekBarTouch() {
-        // get current levels
-        final int[] bandLevels = ControlPanelEffect.getParameterIntArray(mContext,
-                mCallingPackageName, mAudioSession, ControlPanelEffect.Key.eq_band_level);
-        // copy current levels to user preset
-        for (short band = 0; band < mNumberEqualizerBands; band++) {
-            equalizerBandUpdate(band, bandLevels[band]);
-        }
-        equalizerSetPreset(mEQPresetUserPos);
-        ((Gallery)findViewById(R.id.eqPresets)).setSelection(mEQPresetUserPos);
     }
 
     /**
