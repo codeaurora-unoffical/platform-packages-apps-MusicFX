@@ -496,6 +496,7 @@ public class ActivityMusic extends Activity {
         final int count = viewGroup.getChildCount();
         final View bb = findViewById(R.id.bBStrengthKnob);
         final View virt = findViewById(R.id.vIStrengthKnob);
+        final View eq = findViewById(R.id.eqcontainer);
         boolean on = true;
 
         for (int i = 0; i < count; i++) {
@@ -513,6 +514,9 @@ public class ActivityMusic extends Activity {
                 on = ControlPanelEffect.getParameterBoolean(mContext, mCallingPackageName,
                         mAudioSession, ControlPanelEffect.Key.bb_enabled);
                 view.setEnabled(on);
+            } else if(enabled && (view == eq)) {
+                showSeekBar(mEQPreset == mEQPresetUserPos);
+                view.setEnabled(true);
             } else {
                 view.setEnabled(enabled);
             }
@@ -620,6 +624,7 @@ public class ActivityMusic extends Activity {
                 equalizerUpdateDisplay();
             }
         };
+
         final OnTouchListener tl = new OnTouchListener() {
             @Override
             public boolean onTouch(final View v, final MotionEvent event) {
