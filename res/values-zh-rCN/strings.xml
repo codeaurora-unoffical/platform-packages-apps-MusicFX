@@ -41,6 +41,7 @@
     <string name="user">自定义</string>
 
     <string name="eq_custom">切换到“自定义”以调整音效</string>
+    <string name="power_on_prompt">按右上角的开关打开音效</string>
 
     <string name="setup" msgid="1103677904576339192">"设置"</string>
     <string name="picker_title" msgid="8464126693702817261">"音乐效果控制面板"</string>

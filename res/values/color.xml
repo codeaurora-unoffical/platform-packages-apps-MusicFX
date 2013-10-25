@@ -33,5 +33,6 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <color name="lowlight">#650101</color>
     <color name="grey">#e7e7e7</color>
     <color name="disabled">#525252</color>
+    <color name="disabled_gallery">#888888</color>
     <color name="disabled_knob">#575757</color>
 </resources>

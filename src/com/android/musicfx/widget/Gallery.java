@@ -58,7 +58,7 @@ public class Gallery extends android.widget.Gallery {
         Resources res = getResources();
         mHighlightColor = res.getColor(R.color.highlight);
         mLowlightColor = res.getColor(R.color.grey);
-        mDisabledColor = res.getColor(R.color.disabled);
+        mDisabledColor = res.getColor(R.color.disabled_gallery);
 
         setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
