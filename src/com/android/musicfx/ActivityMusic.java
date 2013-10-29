@@ -19,6 +19,7 @@ package com.android.musicfx;
 import com.android.audiofx.OpenSLESConstants;
 import com.android.musicfx.seekbar.SeekBar;
 import com.android.musicfx.widget.Gallery;
+import com.android.musicfx.widget.InterceptableLinearLayout;
 import com.android.musicfx.widget.Knob;
 import com.android.musicfx.widget.Knob.OnKnobChangeListener;
 import com.android.musicfx.widget.Visualizer;
@@ -275,6 +276,7 @@ public class ActivityMusic extends Activity {
                     setEnabledAllChildren(viewGroup, isChecked);
                     // update UI according to headset state
                     updateUIHeadset(false);
+                    setInterception(isChecked);
                 }
             });
 
@@ -559,6 +561,27 @@ public class ActivityMusic extends Activity {
                                     mContext, mCallingPackageName, mAudioSession,
                                     ControlPanelEffect.Key.pr_current_preset);
             ((Spinner)findViewById(R.id.prSpinner)).setSelection(reverb);
+        }
+
+        setInterception(isEnabled);
+    }
+
+    private void setInterception(boolean isEnabled) {
+        final InterceptableLinearLayout ill =
+            (InterceptableLinearLayout) findViewById(R.id.contentSoundEffects);
+        ill.setInterception(!isEnabled);
+        if (isEnabled) {
+            ill.setOnClickListener(null);
+        } else {
+            ill.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    final Toast toast = Toast.makeText(mContext,
+                        getString(R.string.power_on_prompt), Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.CENTER, 0, 0);
+                    toast.show();
+                }
+            });
         }
     }
 
