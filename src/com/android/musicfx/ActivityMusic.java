@@ -171,7 +171,7 @@ public class ActivityMusic extends Activity {
                 }
             }
             if (isHeadsetOnPrev != mIsHeadsetOn) {
-                updateUIHeadset(true);
+                updateUIHeadset(false);
             }
         }
     };
