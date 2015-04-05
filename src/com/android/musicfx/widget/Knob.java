@@ -64,10 +64,13 @@ public class Knob extends FrameLayout {
 
     private OnKnobChangeListener mOnKnobChangeListener = null;
 
+    private final Context mContext;
+
     private float mProgress = 0.0f;
     private int mMax = 100;
     private boolean mOn = false;
     private boolean mEnabled = false;
+    private boolean mBinary = false;
 
     private int mHighlightColor;
     private int mLowlightColor;
@@ -92,6 +95,7 @@ public class Knob extends FrameLayout {
 
     public Knob(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        mContext = context;
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.Knob, 0, 0);
 
@@ -154,11 +158,13 @@ public class Knob extends FrameLayout {
     }
 
     private void setProgressText(boolean on) {
-        if (on) {
-            mProgressTV.setText((int) (mProgress * 100) + "%");
+        final String s;
+        if (mBinary) {
+            s = mContext.getString(on ? R.string.knob_on : R.string.knob_off);
         } else {
-            mProgressTV.setText("--%");
+            s = on ? (int) (mProgress * 100) + "%" : "--%";
         }
+        mProgressTV.setText(s);
     }
 
     private void setProgress(float progress, boolean fromUser) {
@@ -187,6 +193,9 @@ public class Knob extends FrameLayout {
     }
 
     private void drawIndicator() {
+        if (mBinary) {
+            return;
+        }
         float r = mWidth * INDICATOR_RADIUS;
         ImageView view = mOn ? mKnobOn : mKnobOff;
         view.setTranslationX((float) Math.sin(mProgress * 2 * Math.PI) * r - mIndicatorWidth / 2);
@@ -213,12 +222,21 @@ public class Knob extends FrameLayout {
         invalidate();
     }
 
+    public void setBinary(boolean binary) {
+        // update mode, redraw if mode is changed
+        boolean update = (mBinary == binary);
+        mBinary = binary;
+        if (update)
+            setOn(mOn);
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         drawIndicator();
+
         if (mOn && mEnabled) {
-            canvas.drawArc(mRectF, -90, mProgress * 360, false, mPaint);
+            canvas.drawArc(mRectF, -90, mBinary ? 360 : mProgress * 360, false, mPaint);
         }
     }
 
@@ -258,14 +276,14 @@ public class Knob extends FrameLayout {
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                if (mOn) {
+                if (mOn && !mBinary) {
                     mLastX = event.getX();
                     mLastY = event.getY();
                     getParent().requestDisallowInterceptTouchEvent(true);
                 }
                 break;
             case MotionEvent.ACTION_MOVE:
-                if (mOn) {
+                if (mOn && !mBinary) {
                     float x = event.getX();
                     float y = event.getY();
                     float center = mWidth / 2;
