@@ -38,6 +38,9 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
+import android.media.AudioPort;
+import android.media.AudioPatch;
+import android.media.AudioManager.OnAudioPortUpdateListener;
 import android.media.audiofx.AudioEffect;
 import android.media.audiofx.AudioEffect.Descriptor;
 import android.os.Bundle;
@@ -112,6 +115,7 @@ public class ActivityMusic extends Activity {
     private int mPRPresetPrevious;
 
     private boolean mIsHeadsetOn = false;
+    private boolean mIsSpeakerOn = false;
     private ToggleButton mToggleSwitch;
 
     private StringBuilder mFormatBuilder = new StringBuilder();
@@ -141,38 +145,54 @@ public class ActivityMusic extends Activity {
      */
     private int mAudioSession = AudioEffect.ERROR_BAD_VALUE;
 
-    // Broadcast receiver to handle wired and Bluetooth A2dp headset events
-    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+    /**
+     * AudioPortUpdateListener to handle UI update on device change
+     */
+    private MyOnAudioPortUpdateListener mAudioPortUpdateListener = null;
+
+    private class MyOnAudioPortUpdateListener implements OnAudioPortUpdateListener {
+        /**
+         * Callback method called upon audio port list update.
+         */
         @Override
-        public void onReceive(final Context context, final Intent intent) {
-            final String action = intent.getAction();
+        public void onAudioPortListUpdate(AudioPort[] portList) {
             final boolean isHeadsetOnPrev = mIsHeadsetOn;
-            final AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-            if (action.equals(Intent.ACTION_HEADSET_PLUG)) {
-                mIsHeadsetOn = (intent.getIntExtra("state", 0) == 1)
-                        || audioManager.isBluetoothA2dpOn();
-            } else if (action.equals(BluetoothDevice.ACTION_ACL_CONNECTED)) {
-                final int deviceClass = ((BluetoothDevice) intent
-                        .getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)).getBluetoothClass()
-                        .getDeviceClass();
-                if ((deviceClass == BluetoothClass.Device.AUDIO_VIDEO_HEADPHONES)
-                        || (deviceClass == BluetoothClass.Device.AUDIO_VIDEO_WEARABLE_HEADSET)) {
-                    mIsHeadsetOn = true;
-                }
-            } else if (action.equals(AudioManager.ACTION_AUDIO_BECOMING_NOISY)) {
-                mIsHeadsetOn = audioManager.isBluetoothA2dpOn() || audioManager.isWiredHeadsetOn();
-            } else if (action.equals(BluetoothDevice.ACTION_ACL_DISCONNECTED)) {
-                final int deviceClass = ((BluetoothDevice) intent
-                        .getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)).getBluetoothClass()
-                        .getDeviceClass();
-                if ((deviceClass == BluetoothClass.Device.AUDIO_VIDEO_HEADPHONES)
-                        || (deviceClass == BluetoothClass.Device.AUDIO_VIDEO_WEARABLE_HEADSET)) {
-                    mIsHeadsetOn = audioManager.isWiredHeadsetOn();
-                }
-            }
-            if (isHeadsetOnPrev != mIsHeadsetOn) {
-                updateUIHeadset(false);
-            }
+            final boolean isSpeakerOnPrev = mIsSpeakerOn;
+            AudioManager am = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+
+            mIsHeadsetOn = false;
+            mIsSpeakerOn = false;
+
+            int device = am.getDevicesForStream(AudioManager.STREAM_MUSIC);
+            if (device == AudioManager.DEVICE_OUT_BLUETOOTH_A2DP_HEADPHONES ||
+                device == AudioManager.DEVICE_OUT_WIRED_HEADSET ||
+                device == AudioManager.DEVICE_OUT_WIRED_HEADSET) {
+                mIsHeadsetOn = true;
+             } else if (device == AudioManager.DEVICE_OUT_SPEAKER) {
+                mIsSpeakerOn = true;
+             }
+
+             Log.v(TAG, "onAudioPortListUpdate: device=" + device);
+             if (isHeadsetOnPrev != mIsHeadsetOn ||
+                 isSpeakerOnPrev != mIsSpeakerOn) {
+                 updateUIHeadset(false);
+             }
+        }
+
+        /**
+         * Callback method called upon audio patch list update.
+         */
+        @Override
+        public void onAudioPatchListUpdate(AudioPatch[] patchList) {
+            // Ingore audio port update
+        }
+
+        /**
+         * Callback method called when the mediaserver dies
+         */
+        @Override
+        public void onServiceDied() {
+            // Nothing to Do
         }
     };
 
@@ -289,6 +309,10 @@ public class ActivityMusic extends Activity {
                 }
             });
 
+            // Init device info
+            MyOnAudioPortUpdateListener al = new MyOnAudioPortUpdateListener();
+            al.onAudioPortListUpdate(null);
+
             // Initialize the Virtualizer elements.
             // Set the SeekBar listener.
             if (mVirtualizerSupported) {
@@ -339,7 +363,7 @@ public class ActivityMusic extends Activity {
 
                     @Override
                     public boolean onSwitchChanged(final Knob knob,boolean on) {
-                        if (on && !mIsHeadsetOn) {
+                        if (on && !mIsHeadsetOn && !mIsSpeakerOn) {
                             showHeadsetMsg();
                             return false;
                         }
@@ -426,17 +450,12 @@ public class ActivityMusic extends Activity {
         super.onResume();
         if ((mVirtualizerSupported) || (mBassBoostSupported) || (mEqualizerSupported)
                 || (mPresetReverbSupported)) {
-            // Listen for broadcast intents that might affect the onscreen UI for headset.
-            final IntentFilter intentFilter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
-            intentFilter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
-            intentFilter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
-            intentFilter.addAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
-            registerReceiver(mReceiver, intentFilter);
-
-            // Check if wired or Bluetooth headset is connected/on
-            final AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-            mIsHeadsetOn = (audioManager.isWiredHeadsetOn() || audioManager.isBluetoothA2dpOn());
-            Log.v(TAG, "onResume: mIsHeadsetOn : " + mIsHeadsetOn);
+            // Register for AudioPortUpdateListener that might affect the onscreen UI.
+            if (mAudioPortUpdateListener == null) {
+                AudioManager am = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+                mAudioPortUpdateListener = new MyOnAudioPortUpdateListener();
+                am.registerAudioPortUpdateListener(mAudioPortUpdateListener);
+            }
 
             // Update UI
             updateUI();
@@ -452,9 +471,14 @@ public class ActivityMusic extends Activity {
     protected void onPause() {
         super.onPause();
 
-        // Unregister for broadcast intents. (These affect the visible UI,
+        // Unregister AudioPortUpdateListener. (These affect the visible UI,
         // so we only care about them while we're in the foreground.)
-        unregisterReceiver(mReceiver);
+        if (mAudioPortUpdateListener != null) {
+            AudioManager am = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+            am.unregisterAudioPortUpdateListener(mAudioPortUpdateListener);
+            mAudioPortUpdateListener = null;
+        }
+
     }
 
     private void reverbSpinnerInit(Spinner spinner) {
@@ -602,14 +626,17 @@ public class ActivityMusic extends Activity {
     private void updateUIHeadset(boolean force) {
         boolean enabled = mToggleSwitch.isChecked() && mIsHeadsetOn;
         final Knob bBKnob = (Knob) findViewById(R.id.bBStrengthKnob);
-        bBKnob.setEnabled(enabled);
+        bBKnob.setEnabled(mToggleSwitch.isChecked() && (mIsHeadsetOn || mIsSpeakerOn));
+        bBKnob.setBinary(mIsSpeakerOn);
         final Knob vIKnob = (Knob) findViewById(R.id.vIStrengthKnob);
         vIKnob.setEnabled(enabled || !mVirtualizerIsHeadphoneOnly);
 
+        Log.v(TAG, "updateUIHeadset: mIsHeadsetOn: " + mIsHeadsetOn);
+        Log.v(TAG, "updateUIHeadset: mIsSpeakerOn: " + mIsSpeakerOn);
         if (!force) {
             boolean on = ControlPanelEffect.getParameterBoolean(mContext, mCallingPackageName,
                     mAudioSession, ControlPanelEffect.Key.bb_enabled);
-            bBKnob.setOn(enabled && on);
+            bBKnob.setOn(mToggleSwitch.isChecked() && (mIsHeadsetOn || mIsSpeakerOn) && on);
             on = ControlPanelEffect.getParameterBoolean(mContext, mCallingPackageName,
                     mAudioSession, ControlPanelEffect.Key.virt_enabled);
             vIKnob.setOn((enabled && on) || !mVirtualizerIsHeadphoneOnly);
