@@ -63,9 +63,6 @@ public class Knob extends FrameLayout {
     }
 
     private OnKnobChangeListener mOnKnobChangeListener = null;
-
-    private final Context mContext;
-
     private float mProgress = 0.0f;
     private int mMax = 100;
     private boolean mOn = false;
@@ -95,7 +92,6 @@ public class Knob extends FrameLayout {
 
     public Knob(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        mContext = context;
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.Knob, 0, 0);
 
@@ -117,7 +113,7 @@ public class Knob extends FrameLayout {
         mLowlightColor = res.getColor(R.color.lowlight);
         mDisabledColor = res.getColor(R.color.disabled_knob);
 
-        ((ImageView) findViewById(R.id.knob_foreground)).setImageResource(foreground);
+        ((ImageView) findViewById(R.id.knob_foreground)).setImageResource(R.drawable.knob);
 
         mLabelTV = (TextView) findViewById(R.id.knob_label);
         mLabelTV.setText(label);
@@ -160,7 +156,7 @@ public class Knob extends FrameLayout {
     private void setProgressText(boolean on) {
         final String s;
         if (mBinary) {
-            s = mContext.getString(on ? R.string.knob_on : R.string.knob_off);
+            s = mContext.getString(on ? R.string.toggle_button_on : R.string.toggle_button_off);
         } else {
             s = on ? (int) (mProgress * 100) + "%" : "--%";
         }
@@ -217,8 +213,15 @@ public class Knob extends FrameLayout {
         mProgressTV.setTextColor(on ? mHighlightColor : mDisabledColor);
         setProgressText(on);
         mPaint.setColor(on ? mHighlightColor : mDisabledColor);
-        mKnobOn.setVisibility(on ? View.VISIBLE : View.GONE);
-        mKnobOff.setVisibility(on ? View.GONE : View.VISIBLE);
+
+        if (mBinary) {
+            mKnobOn.setVisibility(View.GONE);
+            mKnobOff.setVisibility(View.GONE);
+        } else {
+            mKnobOn.setVisibility(on ? View.VISIBLE : View.GONE);
+            mKnobOff.setVisibility(on ? View.GONE : View.VISIBLE);
+        }
+
         invalidate();
     }
 
@@ -226,6 +229,7 @@ public class Knob extends FrameLayout {
         // update mode, redraw if mode is changed
         boolean update = (mBinary == binary);
         mBinary = binary;
+
         if (update)
             setOn(mOn);
     }
@@ -234,7 +238,10 @@ public class Knob extends FrameLayout {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         drawIndicator();
-
+    }
+    @Override
+    protected void dispatchDraw(Canvas canvas) {
+        super.dispatchDraw(canvas);
         if (mOn && mEnabled) {
             canvas.drawArc(mRectF, -90, mBinary ? 360 : mProgress * 360, false, mPaint);
         }
@@ -259,12 +266,12 @@ public class Knob extends FrameLayout {
 
         mProgressTV.setTextSize(TypedValue.COMPLEX_UNIT_PX, size * TEXT_SIZE);
         mProgressTV.setPadding(0, (int) (size * TEXT_PADDING), 0, 0);
-        mProgressTV.setVisibility(View.VISIBLE);
+        mProgressTV.setVisibility(View.GONE);
         mLabelTV.setTextSize(TypedValue.COMPLEX_UNIT_PX, size * LABEL_SIZE);
         mLabelTV.setPadding(0, (int) (size * LABEL_PADDING), 0, 0);
         mLabelTV.setLayoutParams(new LinearLayout.LayoutParams((int) (w * LABEL_WIDTH),
                     LayoutParams.WRAP_CONTENT));
-        mLabelTV.setVisibility(View.VISIBLE);
+        mLabelTV.setVisibility(View.GONE);
     }
 
     @Override
