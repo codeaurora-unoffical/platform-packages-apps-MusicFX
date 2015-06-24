@@ -165,6 +165,7 @@ public class ActivityMusic extends Activity {
 
             int device = am.getDevicesForStream(AudioManager.STREAM_MUSIC);
             if (device == AudioManager.DEVICE_OUT_BLUETOOTH_A2DP_HEADPHONES ||
+                device == AudioManager.DEVICE_OUT_BLUETOOTH_A2DP ||
                 device == AudioManager.DEVICE_OUT_WIRED_HEADPHONE ||
                 device == AudioManager.DEVICE_OUT_WIRED_HEADSET) {
                 mIsHeadsetOn = true;
