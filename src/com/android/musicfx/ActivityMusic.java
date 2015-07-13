@@ -17,7 +17,6 @@
 package com.android.musicfx;
 
 import com.android.audiofx.OpenSLESConstants;
-import com.android.musicfx.seekbar.SeekBar;
 import com.android.musicfx.widget.Gallery;
 import com.android.musicfx.widget.InterceptableLinearLayout;
 import com.android.musicfx.widget.Knob;
@@ -37,6 +36,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.drawable.ColorDrawable;
 import android.media.AudioManager;
 import android.media.AudioPort;
 import android.media.AudioPatch;
@@ -117,7 +117,7 @@ public class ActivityMusic extends Activity {
     private boolean mIsHeadsetOn = false;
     private boolean mIsSpeakerOn = false;
     private ToggleButton mToggleSwitch;
-
+    private TextView toggleSwithText;
     private StringBuilder mFormatBuilder = new StringBuilder();
     private Formatter mFormatter = new Formatter(mFormatBuilder, Locale.getDefault());
 
@@ -288,16 +288,13 @@ public class ActivityMusic extends Activity {
             // Set the listener for the main enhancements toggle button.
             // Depending on the state enable the supported effects if they were
             // checked in the setup tab.
-            mToggleSwitch = new ToggleButton(this);
-            mToggleSwitch.setBackgroundResource(R.drawable.switch_thumb_off);
-            mToggleSwitch.setTextOn("");
-            mToggleSwitch.setTextOff("");
+            toggleSwithText = (TextView)findViewById(R.id.switchstatus);
+            mToggleSwitch = (ToggleButton)findViewById(R.id.togglebutton);
             mToggleSwitch.setOnCheckedChangeListener(new OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(final CompoundButton buttonView,
                         final boolean isChecked) {
-                    buttonView.setBackgroundResource(isChecked ?
-                        R.drawable.switch_thumb_activated : R.drawable.switch_thumb_off);
+                    toggleSwithText.setText(isChecked? R.string.toggle_button_on : R.string.toggle_button_off);
                     // set parameter and state
                     ControlPanelEffect.setParameterBoolean(mContext, mCallingPackageName,
                             mAudioSession, ControlPanelEffect.Key.global_enabled, isChecked);
@@ -309,7 +306,6 @@ public class ActivityMusic extends Activity {
                     setInterception(isChecked);
                 }
             });
-
             // Init device info
             MyOnAudioPortUpdateListener al = new MyOnAudioPortUpdateListener();
             al.onAudioPortListUpdate(null);
@@ -364,7 +360,7 @@ public class ActivityMusic extends Activity {
 
                     @Override
                     public boolean onSwitchChanged(final Knob knob,boolean on) {
-                        if (on && !mIsHeadsetOn && !mIsSpeakerOn) {
+                        if (on && !mIsHeadsetOn  && !mIsSpeakerOn) {
                             showHeadsetMsg();
                             return false;
                         }
@@ -401,14 +397,6 @@ public class ActivityMusic extends Activity {
         }
 
         ActionBar ab = getActionBar();
-        final ActionBar.LayoutParams params = new ActionBar.LayoutParams(
-                getResources().getDimensionPixelSize(R.dimen.action_bar_button_width),
-                getResources().getDimensionPixelSize(R.dimen.action_bar_button_height),
-                Gravity.CENTER_VERTICAL | Gravity.RIGHT);
-        final int margin = getResources().getDimensionPixelSize(R.dimen.action_bar_switch_padding);
-        params.setMargins(0, 0, margin, 0);
-        ab.setBackgroundDrawable(getResources().getDrawable(R.drawable.ab_transparent_dark_holo));
-        ab.setCustomView(mToggleSwitch, params);
         ab.setDisplayOptions(ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_SHOW_CUSTOM
                 | ActionBar.DISPLAY_HOME_AS_UP);
     }
@@ -484,7 +472,7 @@ public class ActivityMusic extends Activity {
 
     private void reverbSpinnerInit(Spinner spinner) {
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_spinner_item, mReverbPresetNames);
+                R.layout.spinner_item, mReverbPresetNames);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
@@ -566,6 +554,7 @@ public class ActivityMusic extends Activity {
         final boolean isEnabled = ControlPanelEffect.getParameterBoolean(mContext,
                 mCallingPackageName, mAudioSession, ControlPanelEffect.Key.global_enabled);
         mToggleSwitch.setChecked(isEnabled);
+        toggleSwithText.setText(isEnabled? R.string.toggle_button_on : R.string.toggle_button_off);
         setEnabledAllChildren((ViewGroup) findViewById(R.id.contentSoundEffects), isEnabled);
         updateUIHeadset(false);
 
@@ -620,26 +609,30 @@ public class ActivityMusic extends Activity {
     }
 
     /**
-     * Updates UI for headset mode. En/disable VI and BB controls depending on headset state
-     * (on/off) if effects are on. Do the inverse for their layouts so they can take over
-     * control/events.
+     * Updates UI for headset mode. En/disable VI and BB controls depending on
+     * headset state (on/off) if effects are on. Do the inverse for their
+     * layouts so they can take over control/events.
      */
     private void updateUIHeadset(boolean force) {
         boolean enabled = mToggleSwitch.isChecked() && mIsHeadsetOn;
         final Knob bBKnob = (Knob) findViewById(R.id.bBStrengthKnob);
-        bBKnob.setEnabled(mToggleSwitch.isChecked() && (mIsHeadsetOn || mIsSpeakerOn));
         bBKnob.setBinary(mIsSpeakerOn);
+        bBKnob.setEnabled(mToggleSwitch.isChecked()
+                && (mIsHeadsetOn || mIsSpeakerOn));
         final Knob vIKnob = (Knob) findViewById(R.id.vIStrengthKnob);
         vIKnob.setEnabled(enabled || !mVirtualizerIsHeadphoneOnly);
 
         Log.v(TAG, "updateUIHeadset: mIsHeadsetOn: " + mIsHeadsetOn);
         Log.v(TAG, "updateUIHeadset: mIsSpeakerOn: " + mIsSpeakerOn);
         if (!force) {
-            boolean on = ControlPanelEffect.getParameterBoolean(mContext, mCallingPackageName,
-                    mAudioSession, ControlPanelEffect.Key.bb_enabled);
-            bBKnob.setOn(mToggleSwitch.isChecked() && (mIsHeadsetOn || mIsSpeakerOn) && on);
-            on = ControlPanelEffect.getParameterBoolean(mContext, mCallingPackageName,
-                    mAudioSession, ControlPanelEffect.Key.virt_enabled);
+            boolean on = ControlPanelEffect.getParameterBoolean(mContext,
+                    mCallingPackageName, mAudioSession,
+                    ControlPanelEffect.Key.bb_enabled);
+            bBKnob.setOn(mToggleSwitch.isChecked()
+                    && (mIsHeadsetOn || mIsSpeakerOn) && on);
+            on = ControlPanelEffect.getParameterBoolean(mContext,
+                    mCallingPackageName, mAudioSession,
+                    ControlPanelEffect.Key.virt_enabled);
             vIKnob.setOn((enabled && on) || !mVirtualizerIsHeadphoneOnly);
         }
     }

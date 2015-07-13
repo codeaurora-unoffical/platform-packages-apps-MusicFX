@@ -604,16 +604,18 @@ public class ControlPanelEffect {
                 case virt_strength: {
                     final Virtualizer virtualizerEffect = getVirtualizerEffect(audioSession);
                     boolean on = prefs.getBoolean(Key.virt_enabled.toString(), VIRTUALIZER_ENABLED_DEFAULT);
-                    if ((virtualizerEffect != null) && on)
+                    if ((virtualizerEffect != null) && on) {
                         virtualizerEffect.setStrength((short) value);
+                     }
                     break;
                 }
                     // BassBoost
                 case bb_strength: {
                     final BassBoost bassBoostEffect = getBassBoostEffect(audioSession);
                     boolean on = prefs.getBoolean(Key.bb_enabled.toString(), BASS_BOOST_ENABLED_DEFAULT);
-                    if ((bassBoostEffect != null) && on)
+                    if ((bassBoostEffect != null) && on) {
                         bassBoostEffect.setStrength((short) value);
+                     }
                     break;
                 }
                     // Equalizer
