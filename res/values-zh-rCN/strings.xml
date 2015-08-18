@@ -20,7 +20,7 @@
     <string name="no_effects" msgid="5067916002004255814">"无法使用音效"</string>
     <string name="main_toggle_effects_title" msgid="612896145300512593">"音效"</string>
     <string name="eq_dialog_title" msgid="2020244436368289652">"骁龙音效"</string>
-    <string name="headset_plug" msgid="4505819850289423141">"插上耳机感受各种音效"</string>
+    <string name="headset_plug" msgid="4505819850289423141">"插上耳机感受环绕声"</string>
     <string name="bass_boost_strength" msgid="882301530007752270">"低音增强"</string>
     <string name="virtualizer_strength" msgid="106561253469770096">"环绕声"</string>
     <string name="pr_title" msgid="873875523196045130">"混响效果："</string>
