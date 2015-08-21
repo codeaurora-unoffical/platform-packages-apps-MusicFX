@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
     <style name="Widget.Holo.SeekBar.Vertical" parent="@android:Widget.Holo.SeekBar">
         <item name="android:indeterminateOnly">false</item>
         <item name="android:progressDrawable">@drawable/scrubber_progress_vertical_holo_dark</item>
@@ -31,23 +31,19 @@
     </style>
 
     <style name="EqTheme"
-           parent="@android:style/Theme.Material.Light">
+           parent="@android:style/Theme.Material">
         <item name="android:colorPrimary">@color/highlight</item>
         <item name="android:colorPrimaryDark">@color/lowlight</item>
         <item name="android:colorAccent">@color/highlight</item>
-        <!-- <item name="android:actionBarStyle">@style/CustomActionBar</item>
-        <item name="android:windowTranslucentStatus">true</item> -->
+        <item name="android:actionBarStyle">@style/CustomActionBar</item>
     </style>
 
    <!-- ActionBar styles -->
-    <style name="CustomActionBar"
-           parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
-        <item name="android:background">#e53935</item>
+    <style name="CustomActionBar" parent="@android:style/Theme.Material">
+        <item name="android:background">@color/highlight</item>
+        <item name="android:titleTextStyle">@style/EqTheme.CustomActionBar.Text</item>
     </style>
-    <style name="spinnerTheme" parent="@android:style/Theme.Panel">
 
-    </style>
-    <style name="SpinnerItem" parent="android:TextAppearance.Widget.TextView.SpinnerItem">
-        <item name="android:textColor">#993399</item>
-    </style>
+    <style name="EqTheme.CustomActionBar.Text"
+        parent="@android:style/TextAppearance.Medium" />
 </resources>
