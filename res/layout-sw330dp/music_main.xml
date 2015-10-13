@@ -72,7 +72,6 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:textColor="#ffffff" />
 
-
             <ToggleButton
                 android:id="@+id/togglebutton"
                 android:layout_width="wrap_content"
@@ -158,13 +157,14 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                         custom:label="@string/virtualizer_strength" />
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center|center_horizontal"
                         android:layout_marginLeft="10dp"
                         android:layout_marginTop="5dp"
                         android:alpha="0.54"
                         android:ellipsize="marquee"
+                        android:singleLine="true"
                         android:text="@string/virtualizer_strength"
                         android:textAlignment="center"
                         android:textColor="@android:color/black"

@@ -53,4 +53,7 @@
     <string name="power_on_prompt">按右上角的开关打开音效</string>
 
     <string name="picker_title" msgid="8464126693702817261">"音乐效果控制面板"</string>
+
+    <string name="toggle_button_on">开</string>
+    <string name="toggle_button_off">关</string>
 </resources>
